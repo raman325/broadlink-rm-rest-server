@@ -73,7 +73,7 @@ class Blaster(BaseBlastersModel):
         x = 0
 
         while not value and x < 5:
-            x = x + 1
+            x += 1
             sleep(2)
             value = device.check_data()
 
@@ -121,8 +121,8 @@ def get_new_blasters(timeout=DISCOVERY_TIMEOUT):
                 mac=friendly_mac_from_hex(mac_hex), 
                 name=None
             )
-            cnt = cnt + 1
-    
+            cnt += 1
+
     return {"new_devices": cnt}
 
 def get_all_blasters():
