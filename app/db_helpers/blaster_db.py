@@ -1,10 +1,11 @@
 # dependencies - peewee, broadlink
 
-from peewee import SqliteDatabase, Model, AutoField, TextField, IntegerField
-from time import sleep
-import broadlink
-import os
 import codecs
+import os
+from time import sleep
+
+import broadlink
+from peewee import AutoField, IntegerField, Model, SqliteDatabase, TextField
 
 STATUS_TIMEOUT = float(os.environ.get("BROADLINK_STATUS_TIMEOUT", "1"))
 DISCOVERY_TIMEOUT = float(os.environ.get("BROADLINK_DISCOVERY_TIMEOUT", "5"))
@@ -57,11 +58,11 @@ class Blaster(BaseBlastersModel):
 
     def send_command(self, command):
         device = self.get_device()
-        device.send_data(dec_hex(command.value))
+        device.send_data(dec_b64(command.value))
 
     def send_raw(self, value):
         device = self.get_device()
-        device.send_data(dec_hex(value))
+        device.send_data(dec_b64(value))
 
     def get_command(self):
         device = self.get_device()
@@ -76,12 +77,11 @@ class Blaster(BaseBlastersModel):
             sleep(2)
             value = device.check_data()
 
-        if value:
-            value = enc_hex(value)
-            if value.replace(b"\x00", b"") == b"":
+        if value and value.replace(b"\x00", b"") != b"":
+            try:
+                return enc_b64(value)
+            except:
                 return None
-            else:
-                return value
         else:
             return None
 
@@ -123,13 +123,20 @@ def dec_hex(raw):
     return bytearray(codecs.decode(raw, encoding="hex"))
 
 
+def enc_b64(raw):
+    return codecs.encode(raw, encoding="base64").decode()
+
+
+def dec_b64(raw):
+    return bytearray(codecs.decode(raw.encode(), encoding="base64"))
+
+
 def discover_blasters(timeout):
-    return list(
-        filter(
-            lambda blaster: blaster.get_type().lower() == "rm2",
-            broadlink.discover(timeout=timeout),
-        )
-    )
+    return [
+        blaster
+        for blaster in broadlink.discover(timeout=timeout)
+        if blaster.get_type().lower() in ("rm2", "rm4")
+    ]
 
 
 def get_new_blasters(timeout=DISCOVERY_TIMEOUT):

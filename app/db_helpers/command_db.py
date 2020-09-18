@@ -1,6 +1,14 @@
 # dependencies - peewee
 
-from peewee import SqliteDatabase, Model, AutoField, TextField, ForeignKeyField
+from peewee import (
+    AutoField,
+    DateTimeField,
+    ForeignKeyField,
+    Model,
+    SqliteDatabase,
+    TextField,
+)
+
 
 commands_db_path = "data/commands.db"
 
@@ -12,6 +20,14 @@ commands_db = SqliteDatabase(commands_db_path)
 class BaseCommandsModel(Model):
     class Meta:
         database = commands_db
+
+
+class Encoding(BaseCommandsModel):
+    encoding = TextField(unique=True)
+    active_since = DateTimeField()
+
+    def to_dict(self):
+        return {"encoding": self.encoding, "active_since": self.active_since}
 
 
 class Target(BaseCommandsModel):

@@ -1,0 +1,4 @@
+broadlink==0.10
+falcon
+gunicorn
+peewee

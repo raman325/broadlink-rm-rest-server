@@ -1,11 +1,16 @@
 # dependencies - falcon, wsgi server (waitress, uwsgi, etc)
 
-from db_helpers import blaster_db, command_db
-import falcon
+from datetime import datetime
 import json
+import logging
+
+import falcon
+
+from db_helpers import blaster_db, command_db
+
+_LOGGER = logging.getLogger(__name__)
 
 ## Generic helper functions
-
 
 def get_blaster(attr, value):
     if attr.lower() == "name":
@@ -341,4 +346,31 @@ app.add_route("/targets/{target_name}", target)
 blaster_db.blasters_db.connect()
 blaster_db.Blaster.create_table(safe=True)
 blaster_db.get_new_blasters(timeout=3)
+blaster_db.blasters_db.close()
+
+### Data migrations
+
+### Command DB Migrations
+
+command_db.commands_db.connect()
+
+# Migrate from hex to base64 for IR values
+if not command_db.commands_db.table_exists("Encoding"):
+    for command in command_db.Command.select():
+        try:
+            _bytes = blaster_db.dec_hex(command.value)
+            command.value = blaster_db.enc_b64(_bytes)[:-1]
+            command.save()
+        except ValueError:
+            command_db.commands_db.close()
+
+    command_db.Encoding.create_table(safe=True)
+    command_db.Encoding.create(encoding="base64", active_since=datetime.utcnow())
+
+command_db.commands_db.close()
+
+### Blaster DB Migrations
+
+blaster_db.blasters_db.connect()
+
 blaster_db.blasters_db.close()

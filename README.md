@@ -16,7 +16,7 @@ There are three objects that this application manages:
 The basic process to use this app is:
 1. Discover all *blasters* on your network by making a `GET` request on the `/discoverblasters` endpoint (this is done on app initialization so it's only required if the initial discovery failed or a new device gets added to the network). This will add them to the application's database. You can assign a friendly name to each one or use MAC/IP addresses to reference them after they have been discovered.
 2. Create a *target* for every device you want to control using your *blasters* by making a `PUT` request on the `/targets/<target_name>` endpoint
-3. For each *target*, you can either use a specific *blaster* to learn a *command* by making a `PUT` request on the `/targets/<target_name>/commands/<command_name>?blaster_attr=<blaster_attr>&blaster_value=<blaster_value>` endpoint and pressing the corresponding key on your remote while pointing at the *blaster* specified, or you can create a *command* from a hex value if you already know the raw *command* by making a `PUT` request on the `/targets/<target_name>/commands/<command_name>?value=<value>` endpoint
+3. For each *target*, you can either use a specific *blaster* to learn a *command* by making a `PUT` request on the `/targets/<target_name>/commands/<command_name>?blaster_attr=<blaster_attr>&blaster_value=<blaster_value>` endpoint and pressing the corresponding key on your remote while pointing at the *blaster* specified, or you can create a *command* from a base64 value if you already know the raw *command* by making a `PUT` request on the `/targets/<target_name>/commands/<command_name>?value=<value>` endpoint
 4. Repeat 2 + 3 until all *targets* and *commands* have been added to the database.
 5. From now on, you can reference *blasters*, *targets*, and *commands* by the aliases you created.
 
@@ -30,11 +30,11 @@ To create and start container:
 > I have tested this on my Synology Diskstation NAS and have run into problems with my network configuration that prevented python-broadlink from being able to discover blasters. To resolve this problem, I switched from bridged network mode to host network mode by changing `-p 8000:8000` in the above command to `--network host`.
 
 ### Local Setup
-1. Clone `app/` to the folder of your choice. 
-2. Install dependencies via pip: `pip3 install falcon peewee broadlink`
-3. Install the WSGI implementation of your choice (these instructions assume you are using gunicorn): `pip3 install gunicorn`
-4. Navigate to the app folder
-5. Run `gunicorn -b 0.0.0.0:8000 app:app`
+1. Clone this repo.
+2. `cd broadlink-rm-rest/`
+2. Install dependencies via pip: `pip3 install -r requirements.txt`
+3. `cd app/`
+5. `gunicorn -b 0.0.0.0:8000 app:app`
 
 Your databases will be available in the app/data folder.
 
