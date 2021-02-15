@@ -92,7 +92,10 @@ class Blaster(BaseBlastersModel):
             device.enter_learning()
 
             sleep(2)
-            value = device.check_data()
+            try:
+                value = device.check_data()
+            except broadlink.exceptions.ReadError:
+                return None
             x = 0
 
             for _ in range(1, 6):
