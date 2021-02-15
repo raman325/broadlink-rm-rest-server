@@ -1,13 +1,14 @@
+import time
 import codecs
 from logging import getLogger
 import os
-from time import sleep
 
 import broadlink
 from peewee import AutoField, IntegerField, Model, SqliteDatabase, TextField
 
 STATUS_TIMEOUT = float(os.environ.get("BROADLINK_STATUS_TIMEOUT", "1"))
 DISCOVERY_TIMEOUT = float(os.environ.get("BROADLINK_DISCOVERY_TIMEOUT", "5"))
+LEARNING_TIMEOUT = float(os.environ.get("BROADLINK_LEARNING_TIMEOUT", "30"))
 
 _LOGGER = getLogger(__name__)
 
@@ -91,19 +92,17 @@ class Blaster(BaseBlastersModel):
         if device:
             device.enter_learning()
 
-            sleep(2)
-            try:
-                value = device.check_data()
-            except broadlink.exceptions.ReadError:
-                return None
-            x = 0
-
-            for _ in range(1, 6):
-                value = device.check_data()
-                if value:
-                    break
+            start = time.time()
+            while time.time() - start < LEARNING_TIMEOUT:
+                time.sleep(1)
+                try:
+                    value = device.check_data()
+                except (broadlink.exceptions.ReadError, broadlink.exceptions.StorageError):
+                    continue
                 else:
-                    sleep(2)
+                    break
+            else:
+                return None
 
             if value and value.replace(b"\x00", b"") != b"":
                 try:
