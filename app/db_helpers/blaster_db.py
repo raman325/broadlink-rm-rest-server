@@ -73,10 +73,9 @@ class Blaster(BaseBlastersModel):
 
         if check_blaster:
             return False
-        else:
-            self.name = name
-            self.save()
-            return True
+        self.name = name
+        self.save()
+        return True
 
     def send_command(self, command):
         device = self.device
@@ -121,7 +120,7 @@ class Blaster(BaseBlastersModel):
 
 
 def friendly_mac_from_hex(raw):
-    return ":".join([raw[(x * 2) : ((x + 1) * 2)] for x in range(0, 6)])
+    return ":".join(raw[(x * 2) : ((x + 1) * 2)] for x in range(6))
 
 
 def enc_hex(raw):
