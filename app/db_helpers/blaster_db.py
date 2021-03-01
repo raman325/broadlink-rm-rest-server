@@ -29,6 +29,7 @@ class Blaster(BaseBlastersModel):
     ip = TextField()
     port = IntegerField()
     devtype = IntegerField()
+    devicetype = TextField()
     mac = TextField(unique=True)
     mac_hex = TextField(unique=True)
     name = TextField(unique=True, null=True)
@@ -39,9 +40,14 @@ class Blaster(BaseBlastersModel):
 
     @property
     def device(self):
-        device = broadlink.rm(
-            host=(self.ip, self.port), mac=dec_hex(self.mac_hex), devtype=self.devtype
-        )
+        if self.devicetype == "rm2":
+            device = broadlink.rm(
+                host=(self.ip, self.port), mac=dec_hex(self.mac_hex), devtype=self.devtype
+            )
+        else:
+            device = broadlink.rm4(
+                host=(self.ip, self.port), mac=dec_hex(self.mac_hex), devtype=self.devtype
+            )
         try:
             device.auth()
         except broadlink.exceptions.NetworkTimeoutError:
@@ -163,6 +169,7 @@ def get_new_blasters(timeout=DISCOVERY_TIMEOUT):
                 ip=blaster.host[0],
                 port=blaster.host[1],
                 devtype=blaster.devtype,
+                devicetype=blaster.get_type().lower(),
                 mac_hex=mac_hex,
                 mac=friendly_mac_from_hex(mac_hex),
                 name=None,
