@@ -5,7 +5,7 @@
 FROM python:3-slim
 
 # create volume for SQLite DB files
-VOLUME ["app/data"]
+VOLUME ["/app/data"]
 
 # Add requirements
 ADD requirements.txt /
