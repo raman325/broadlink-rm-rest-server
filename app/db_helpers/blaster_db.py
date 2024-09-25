@@ -142,10 +142,18 @@ def discover_blasters(timeout):
     ]
 
 
-def get_new_blasters(timeout=DISCOVERY_TIMEOUT):
+def get_new_blasters(at_ip=None, timeout=DISCOVERY_TIMEOUT):
     cnt = 0
+    discovered = []
 
-    for blaster in discover_blasters(timeout=timeout):
+    if at_ip:
+        d = broadlink.hello(at_ip)
+        if d:
+            discovered.append(d)
+    else:
+        discovered = discover_blasters(timeout=timeout)
+
+    for blaster in discovered:
         mac_hex = enc_hex(blaster.mac)
         mac = friendly_mac_from_hex(mac_hex)
         check_blaster = Blaster.get_or_none(

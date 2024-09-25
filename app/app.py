@@ -86,7 +86,7 @@ class MiddlewareDatabaseHandler(object):
 
 class DiscoverRESTResource(object):
     def on_get(self, req, resp):
-        resp.body = json.dumps(blaster_db.get_new_blasters())
+        resp.body = json.dumps(blaster_db.get_new_blasters(at_ip=req.get_param("at_ip", required=False)))
 
 
 # Resource to interact with all discovered Blasters
