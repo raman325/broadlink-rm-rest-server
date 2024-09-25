@@ -60,6 +60,7 @@ In the `docker run` command listed above, the DB files (commands.db and blasters
 Endpoint | HTTP Method | Description
 -------- | ----------- | -----------
 `/discoverblasters` | `GET` | Discovers all new Broadlink RM blasters and adds them to the database (Note: blasters must be in the database before they can be used by the application, and they must be on and connected to the local network to be discoverable. You can add the Broadlink devices to your network using the instructions [here](https://github.com/mjg59/python-broadlink#example-use)). Blasters will be added to the database unnamed, so it's recommended to use `PUT /blasters/<attr>/<value>?new_name=<new_name>` to set a friendly name for each blaster.<br><br>NOTE: Discovery will also update blaster IP addresses when applicable.
+`/discoverblasters?at_ip=<value>` | `GET` | Discovers a Broadlink RM blaster at the specified IP address and adds it to the database. This can be used to discover and add [locked blasters](https://github.com/mjg59/python-broadlink/issues/719), or blasters that otherwise cannot be discovered.
 `/blasters` | `GET` | Gets all blasters (only returns blasters that have already been discovered once). | 
 `/blasters?target_name=<target_name>&command_name=<command_name>` | `POST` | Sends command `<command_name>` for target `<target_name>` to all blasters.
 `/blasters/<attr>/<value>` | `GET` | Gets specified blaster. `<attr>` should be either `ip`, `mac`, or `name`, and `<value>` should be the corresponding value.
@@ -84,6 +85,7 @@ Endpoint | HTTP Method | Description
 2. The database files are in SQLite3 format and can be hand edited if needed. I use [SQLiteStudio](https://sqlitestudio.pl/index.rvt).
 3. To reset all settings/data, simply stop the container/app, delete the two .db files, and restart.
 4. This was tested on an RM3 Mini but should theoretically support any RM device that [python-broadlink](https://github.com/mjg59/python-broadlink) does.
+5. Blasters must be unlocked (accessible via WLAN) to be controlled via this program, otherwise you may get `Authentication failed` errors (see [mjg59/python-broadlink#719](https://github.com/mjg59/python-broadlink/issues/719)). To unlock a blaster in the Broadlink app: select the device, tap "..." in the top tap, click "Property", then find the "Lock device" setting and turn it off.
 
 ## Shout outs
 1. @mjg59 for [python-broadlink](https://github.com/mjg59/python-broadlink)
