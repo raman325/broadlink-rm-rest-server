@@ -207,7 +207,7 @@ class BlasterRESTResource(object):
 
 class BlasterStatusRESTResource(object):
     def on_get(self, req, resp, attr, value):
-        if not get_blaster(attr, value).available():
+        if not get_blaster(attr, value).available:
             raise falcon.HTTPGatewayTimeout(
                 "Blaster with attribute '"
                 + attr
