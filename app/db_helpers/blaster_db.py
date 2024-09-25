@@ -39,7 +39,7 @@ class Blaster(BaseBlastersModel):
 
     @property
     def device(self):
-        device = broadlink.rm(
+        device = broadlink.rm4(
             host=(self.ip, self.port), mac=dec_hex(self.mac_hex), devtype=self.devtype
         )
         try:

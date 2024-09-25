@@ -1,4 +1,4 @@
-broadlink==0.16.0
 falcon
 gunicorn
 peewee
+broadlink==0.19.0
